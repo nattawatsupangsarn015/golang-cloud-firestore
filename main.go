@@ -95,7 +95,7 @@ func (route *App) Home(w http.ResponseWriter, r *http.Request) {
 			break
 		}
 		if err != nil {
-			log.Fatalf("Failed to iterate: %v", err)
+			respondWithJSON(w, http.StatusInternalServerError, "Something wrong, please try again.")
 		}
 
 		mapstructure.Decode(doc.Data(), &BookData)
@@ -118,7 +118,7 @@ func (route *App) FetchDataByID(w http.ResponseWriter, r *http.Request) {
 			break
 		}
 		if err != nil {
-			log.Fatalf("Failed to iterate: %v", err)
+			respondWithJSON(w, http.StatusInternalServerError, "Something wrong, please try again.")
 		}
 
 		mapstructure.Decode(doc.Data(), &BookData)
@@ -176,14 +176,14 @@ func (route *App) EditDataByID(w http.ResponseWriter, r *http.Request) {
 			break
 		}
 		if err != nil {
-			log.Fatalf("Failed to iterate: %v", err)
+			respondWithJSON(w, http.StatusInternalServerError, "Something wrong, please try again.")
 		}
 		docID = doc.Ref.ID
 	}
 
 	_, err = route.client.Collection("books").Doc(docID).Set(route.ctx, BookData)
 	if err != nil {
-		log.Printf("An error has occurred: %s", err)
+		respondWithJSON(w, http.StatusInternalServerError, "Something wrong, please try again.")
 	}
 
 	respondWithJSON(w, http.StatusCreated, "Edit book success!")
@@ -203,14 +203,15 @@ func (route *App) DeleteDataByID(w http.ResponseWriter, r *http.Request) {
 			break
 		}
 		if err != nil {
-			log.Fatalf("Failed to iterate: %v", err)
+			respondWithJSON(w, http.StatusInternalServerError, "Something wrong, please try again.")
 		}
 		docID = doc.Ref.ID
 	}
 
 	_, err := route.client.Collection("books").Doc(docID).Delete(route.ctx)
 	if err != nil {
-		log.Printf("An error has occurred: %s", err)
+		respondWithJSON(w, http.StatusInternalServerError, "Something wrong, please try again.")
+		return
 	}
 
 	respondWithJSON(w, http.StatusOK, "Delete book success !")
